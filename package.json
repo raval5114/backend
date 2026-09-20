@@ -1,0 +1,21 @@
+{
+  "name": "fit-link",
+  "version": "1.0.0",
+  "description": "a backend service for the fitlink project which includes data transmission of data from watch to database",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.1",
+    "express": "^5.2.1",
+    "mogoose": "^0.0.1-security",
+    "mongoose": "^9.10.1",
+    "router": "^2.2.0",
+    "sequelize": "^6.37.8"
+  }
+}
