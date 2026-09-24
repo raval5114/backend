@@ -3,10 +3,10 @@ const Player = require("../models/player_data.js");
 
 const router = express.Router();
 
-// ========================================
+
 // CREATE PLAYER
 // POST /api/players
-// ========================================
+
 
 router.post("/", async (req, res) => {
   try {

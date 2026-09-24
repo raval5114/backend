@@ -4,7 +4,7 @@ const cors = require("cors");
 
 const connectDb = require("./config/db_config.js");
 const playerRoutes = require("./routes/player.routes.js");
-
+const authRoutes = require("./routes/auth_routes");
 dotenv.config();
 
 const app = express();
@@ -19,10 +19,10 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use("/api/players", playerRoutes);
 const PORT = process.env.PORT || 3000;
 
-connectDb();
+//connectDb();
 
 // Health check
 app.get("/", (req, res) => {
@@ -33,8 +33,9 @@ app.get("/", (req, res) => {
 });
 
 // Player routes
-app.use("/api/players", playerRoutes);
-
+//app.use("/api/players", playerRoutes);
+app.use("/api/auth", authRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+// Auth routes
