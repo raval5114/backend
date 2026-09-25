@@ -46,6 +46,11 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
 
+    tokenVersion: {
+      type: Number,
+      default: 0,
+    },
+
     refreshToken: {
       type: String,
       default: null,
@@ -57,9 +62,6 @@ const userSchema = new mongoose.Schema(
       default: true,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
-
 module.exports = mongoose.model("User", userSchema);

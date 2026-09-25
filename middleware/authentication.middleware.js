@@ -3,8 +3,7 @@ const User = require("../models/user.model");
 
 const authenticate = async (req, res, next) => {
   try {
-    const authHeader =
-      req.headers.authorization;
+    const authHeader = req.headers.authorization;
 
     if (!authHeader) {
       return res.status(401).json({
@@ -14,14 +13,13 @@ const authenticate = async (req, res, next) => {
       });
     }
 
-    const [type, token] =
-      authHeader.split(" ");
+    const [type, token] = authHeader.split(" ");
 
     if (type !== "Bearer" || !token) {
       return res.status(401).json({
         success: false,
         error: "INVALID_TOKEN_FORMAT",
-        message: "Use Bearer token",
+        message: "Authorization format must be Bearer <token>",
       });
     }
 
@@ -38,7 +36,7 @@ const authenticate = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         error: "USER_NOT_FOUND",
-        message: "User does not exist",
+        message: "Authenticated user does not exist",
       });
     }
 
@@ -50,7 +48,19 @@ const authenticate = async (req, res, next) => {
       });
     }
 
-    // Current user, not merely JWT user
+    // IMPORTANT:
+    // Reject tokens generated before logout
+    if (
+      decoded.tokenVersion === undefined ||
+      decoded.tokenVersion !== user.tokenVersion
+    ) {
+      return res.status(401).json({
+        success: false,
+        error: "TOKEN_REVOKED",
+        message: "Access token has been revoked",
+      });
+    }
+
     req.user = user;
 
     next();

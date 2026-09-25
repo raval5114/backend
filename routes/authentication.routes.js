@@ -1,8 +1,9 @@
 const express = require("express");
 const authRouter = express.Router();
+const authenticate = require("../middleware/authentication.middleware");
 
-const authService = require("../serivces/auth_service");
-
+const AuthService = require("../serivces/auth_service");
+const authService = new AuthService()
 // ============================================================
 // AUTHENTICATION
 // ============================================================
@@ -95,10 +96,10 @@ authRouter.post("/register", async (req, res) => {
  *               - email
  *               - password
  *             properties:
- *               email:
+ *               identifier:
  *                 type: string
- *                 format: email
- *                 example: john@example.com
+ *                 format: email or mobileno
+ *                 example: john@example.com or 1234567890
  *               password:
  *                 type: string
  *                 format: password
@@ -161,7 +162,7 @@ authRouter.post("/login", async (req, res) => {
  */
 authRouter.post("/refresh-token", async (req, res) => {
   try {
-    const result = await authService.refreshToken(req.body.refreshToken);
+    const result = await authService.generateRefreshToken(req.body.refreshToken);
 
     return res.status(200).json({
       success: true,
@@ -182,7 +183,7 @@ authRouter.post("/refresh-token", async (req, res) => {
  * /api/auth/logout:
  *   post:
  *     summary: Logout user
- *     description: Invalidates the user's refresh token.
+ *     description: Invalidates the authenticated user's refresh token.
  *     tags:
  *       - Authentication
  *     security:
@@ -191,18 +192,19 @@ authRouter.post("/refresh-token", async (req, res) => {
  *       200:
  *         description: Logout successful
  *       401:
- *         description: Authentication required
+ *         description: Authentication required or invalid access token
+ *       404:
+ *         description: User not found
  *       500:
  *         description: Internal server error
  */
-authRouter.post("/logout", async (req, res) => {
+authRouter.post("/logout", authenticate, async (req, res) => {
   try {
-    const result = await authService.logout(req);
+    await authService.logout(req.user.userId);
 
     return res.status(200).json({
       success: true,
       message: "Logout successful",
-      data: result,
     });
   } catch (error) {
     return res.status(500).json({
@@ -212,5 +214,6 @@ authRouter.post("/logout", async (req, res) => {
     });
   }
 });
+
 
 module.exports = authRouter;

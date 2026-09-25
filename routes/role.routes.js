@@ -4,8 +4,8 @@ const router = express.Router();
 const authenticate = require("../middleware/authentication.middleware");
 const authorize = require("../middleware/authorization.middleware");
 
-const roleService = require("../serivces/role_service");
-
+const RoleService = require("../serivces/role_service");
+const roleService = new RoleService()
 // ============================================================
 // ROLE MANAGEMENT
 // ============================================================

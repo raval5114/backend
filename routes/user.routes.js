@@ -4,8 +4,8 @@ const router = express.Router();
 const authenticate = require("../middleware/authentication.middleware");
 const authorize = require("../middleware/authorization.middleware");
 
-const userService = require("../serivces/user_service");
-
+const UserService = require("../serivces/user_service");
+const userService = new UserService();
 // ============================================================
 // USER MANAGEMENT
 // ============================================================
