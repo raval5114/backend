@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const authenticate = require("../middleware/authentication.middleware");
+const authorize = require("../middleware/authorization.middleware");
 
+const player = require("../models/player.data");
+const Player = new player();
 
 // CREATE PLAYER
 // POST /api/players
@@ -27,15 +31,24 @@ router.post("/", async (req, res) => {
 // GET ALL PLAYERS
 // GET /api/players
 // ========================================
-
 router.get("/", async (req, res) => {
   try {
     const players = await Player.find();
-const authenticate = require("../middleware/authentication.middleware");
-const authorize = require("../middleware/authorization.middleware");
 
-const Player = require("../models/player.data");
-
+    return res.status(200).json({
+      success: true,
+      message: "Players fetched successfully",
+      count: players.length,
+      data: players,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: "PLAYERS_FETCH_FAILED",
+      message: error.message,
+    });
+  }
+});
 // ============================================================
 // PLAYER MANAGEMENT
 // ============================================================
