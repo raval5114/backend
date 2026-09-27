@@ -7,13 +7,25 @@ const playerRoutes = require("./routes/player.routes.js");
 const authRoutes = require("./routes/auth_routes");
 dotenv.config();
 
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./config/swagger.js");
+
 const app = express();
 
 app.use(
   cors({
     origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE",
+      "PATCH",
+    ],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+    ],
   })
 );
 
@@ -24,13 +36,15 @@ const PORT = process.env.PORT || 3000;
 
 //connectDb();
 
-// Health check
-app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Wearable Analytics Service is running",
-  });
-});
+    await seedRBAC();
+
+    app.get("/", (req, res) => {
+      res.status(200).json({
+        success: true,
+        message:
+          "Wearable Analytics Service is running",
+      });
+    });
 
 // Player routes
 //app.use("/api/players", playerRoutes);

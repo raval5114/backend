@@ -1,0 +1,10 @@
+Logs:
+Regestration:
+
+{"success":true,"message":"User registered successfully","data":{"userId":"USR-1790331844462","username":"Hari Raval","email":"hariraval81@gmail.com","roleId":"ROLE_PLAYER","playerId":"PLY-1790331844531"}}
+
+Login:
+{"success":true,"message":"Login successful","data":{"user":{"userId":"USR-1790331844462","username":"Hari Raval","email":"hariraval81@gmail.com","roleId":"ROLE_PLAYER"},"accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJVU1ItMTc5MDMzMTg0NDQ2MiIsImlhdCI6MTc5MDMzMzEzOCwiZXhwIjoxNzkwMzM0MDM4fQ.tt0h9m1IkG_2Q1P6r92Cuf8oqHkm9LGFuYD5Ld38lnU","refreshToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJVU1ItMTc5MDMzMTg0NDQ2MiIsImlhdCI6MTc5MDMzMzEzOCwiZXhwIjoxNzkwNDk1MTM4fQ.x1DUDvby3Zj5U7ix4gAwRnG-fmuFYp_-JbzM-GKTXXE"}}
+
+RefreshToken:
+{"success":true,"message":"Access token refreshed successfully","data":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3OTAzMzMzMTcsImV4cCI6MTc5MDQ5NTMxN30.q123AgbHsD1M8QCkU4I622APqHe-FphPHkuzfOzrlI0"}
