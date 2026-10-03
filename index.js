@@ -10,6 +10,8 @@ const seedRBAC = require("./seed/rbac.seed.js");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger.js");
 
+const wearableRoutes = require("./routes/wearable.routes.js");
+
 // Load environment variables
 dotenv.config();
 
@@ -40,6 +42,8 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
+
 // =========================
 // Swagger
 // =========================
@@ -56,6 +60,8 @@ app.use(
 
 app.use("/api/auth", authRoutes);
 app.use("/api/players", playerRoutes);
+
+app.use("/api/wearable", wearableRoutes);
 
 // =========================
 // Health Check
@@ -101,7 +107,7 @@ app.use((err, req, res, next) => {
 const startServer = async () => {
   try {
     // Connect to MongoDB
-    await connectDb();
+    //await connectDb();
 
     // Seed roles and privileges
     await seedRBAC();
