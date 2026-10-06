@@ -1,6 +1,7 @@
 const express = require("express");
 
 const AdminService = require("../serivces/admin_service.js");
+const UserLogService = require("../serivces/user_log_service.js");
 
 const authenticationMiddleware = require(
   "../middleware/authentication.middleware.js"
@@ -294,6 +295,60 @@ adminRouter.get(
         success: false,
         error: "INTERNAL_SERVER_ERROR",
         message: "Unable to retrieve platform health",
+      });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/admin/users/logs:
+ *   get:
+ *     summary: Get user action logs
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *     responses:
+ *       200:
+ *         description: User logs retrieved successfully
+ */
+adminRouter.get(
+  "/users/logs",
+  authenticationMiddleware,
+  authorizationMiddleware("USER_READ"),
+  async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit) || 50;
+      const skip = parseInt(req.query.skip) || 0;
+      
+      const result = await UserLogService.getUserLogs(limit, skip);
+
+      return res.status(200).json({
+        success: true,
+        message: "User logs retrieved successfully",
+        data: result.data,
+      });
+    } catch (error) {
+      console.error(
+        "Admin get user logs error:",
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        error: "INTERNAL_SERVER_ERROR",
+        message: "Unable to retrieve user logs",
       });
     }
   }

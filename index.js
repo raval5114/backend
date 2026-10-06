@@ -15,7 +15,7 @@ const wearableRoutes = require("./routes/wearable.routes.js");
 const adminRoutes = require("./routes/admin.routes.js");
 const coachRoutes = require("./routes/coach.routes.js");
 // RBAC
-const seedRBAC = require("./seed/rbac.seed.js");
+const seedRBAC = require("./rbac.seed.js");
 
 // Swagger
 const swaggerUi = require("swagger-ui-express");

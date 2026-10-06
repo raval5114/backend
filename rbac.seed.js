@@ -1,5 +1,5 @@
-const Role = require("../models/role.model");
-const Privilege = require("../models/privilege.model");
+const Role = require("./models/role.model");
+const Privilege = require("./models/privilege.model");
 
 const privileges = [
   {

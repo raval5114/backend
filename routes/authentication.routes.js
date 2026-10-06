@@ -62,7 +62,12 @@ const authService = new AuthService()
  */
 authRouter.post("/register", async (req, res) => {
   try {
-    const result = await authService.register(req.body);
+    const payload = {
+      ...req.body,
+      ipAddress: req.ip || req.connection.remoteAddress,
+      userAgent: req.headers["user-agent"]
+    };
+    const result = await authService.register(payload);
 
     return res.status(201).json({
       success: true,
@@ -116,7 +121,12 @@ authRouter.post("/register", async (req, res) => {
  */
 authRouter.post("/login", async (req, res) => {
   try {
-    const result = await authService.login(req.body);
+    const payload = {
+      ...req.body,
+      ipAddress: req.ip || req.connection.remoteAddress,
+      userAgent: req.headers["user-agent"]
+    };
+    const result = await authService.login(payload);
 
     return res.status(200).json({
       success: true,
