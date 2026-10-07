@@ -67,6 +67,8 @@ swaggerUi.setup(swaggerSpec)
 // ROUTES
 // ==========================================
 
+//wearable data
+app.use("/api/wearable", wearableRoutes);
 // Authentication
 app.use("/api/auth", authRoutes);
 
