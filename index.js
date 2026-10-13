@@ -9,11 +9,14 @@ dotenv.config();
 const connectDb = require("./config/db_config.js");
 
 // Routes
+const userRoutes = require("./routes/user.routes.js");
 const playerRoutes = require("./routes/player.routes.js");
 const authRoutes = require("./routes/auth_routes.js");
 const wearableRoutes = require("./routes/wearable.routes.js");
 const adminRoutes = require("./routes/admin.routes.js");
 const coachRoutes = require("./routes/coach.routes.js");
+const priviligesRoutes = require("./routes/privilege.routes.js");
+const roleRoutes = require("./routes/role.routes.js");
 // RBAC
 const seedRBAC = require("./rbac.seed.js");
 
@@ -70,10 +73,15 @@ swaggerUi.setup(swaggerSpec)
 
 // Authentication
 app.use("/api/auth", authRoutes);
-
+//User management Routes
+app.use("/api/users",userRoutes);
+app
 // Player APIs
 app.use("/api/players", playerRoutes);
-
+// Priveleges APIs
+app.use("/api/privileges",priviligesRoutes);
+// Role Apis
+app.use("/api/roles", roleRoutes);
 // Wearable APIs
 app.use("/api/wearable", wearableRoutes);
 // Admin APIs
@@ -130,8 +138,8 @@ console.log("Connecting to MongoDB...");
 await connectDb();
 
 // 2. Seed RBAC roles and privileges
-console.log("Seeding RBAC...");
-await seedRBAC();
+// console.log("Seeding RBAC...");
+// await seedRBAC();
 
 // 3. Start Express server
 app.listen(PORT, () => {

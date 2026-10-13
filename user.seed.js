@@ -12,24 +12,32 @@ const users = [
   // =========================
 
   {
-    userId: "USR001",
-    username: "admin_harsh",
-    email: "admin.harsh@fitlink.com",
-    mobileNo: "9876500001",
+    userId: "USR000",
+    username: "Hari Rawal",
+    email: "hariraval81@gmail.com",
+    mobileNo: "9574035114",
     password: "Admin@123",
     roleId: "ROLE_ADMIN",
     isActive: true,
   },
   {
-    userId: "USR002",
-    username: "admin_rahul",
-    email: "admin.rahul@fitlink.com",
-    mobileNo: "9876500002",
+    userId: "USR001",
+    username: "Shivangi Raval",
+    email: "shivangiraval@gmail.com",
+    mobileNo: "7567072470",
     password: "Admin@123",
     roleId: "ROLE_ADMIN",
     isActive: true,
-  },
-
+  },{
+    userId: "USR002",
+    username: "Kashyap Raval",
+    email: "kashyapraval@gmail.com",
+    mobileNo: "9773184384",
+    password: "Admin@123",
+    roleId: "ROLE_ADMIN",
+    isActive: true,
+  }
+  ,
   // =========================
   // COACHES
   // =========================

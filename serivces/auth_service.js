@@ -68,7 +68,7 @@
         : "player";
 
     const selectedRole = await Role.findOne({
-      roleName,
+      roleName, 
     });
 
     if (!selectedRole) {
