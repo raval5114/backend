@@ -12,7 +12,7 @@ const connectDb = require("./config/db_config.js");
 const playerRoutes = require("./routes/player.routes.js");
 const authRoutes = require("./routes/auth_routes.js");
 const wearableRoutes = require("./routes/wearable.routes.js");
-
+const wearableRoutesget = require("./routes/wearable.routes");
 // RBAC
 const seedRBAC = require("./seed/rbac.seed.js");
 
@@ -77,7 +77,7 @@ app.use("/api/players", playerRoutes);
 
 // Wearable APIs
 app.use("/api/wearable", wearableRoutes);
-
+app.use("/api/wearable", wearableRoutesget);
 // ==========================================
 // HEALTH CHECK
 // ==========================================

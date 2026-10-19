@@ -124,4 +124,28 @@ router.post("/data", async (req, res) => {
   }
 });
 
+
+// GET - Fetch wearable data for a player
+router.get("/data/:playerId", async (req, res) => {
+  try {
+    const data = await WearableData.find({
+      playerId: req.params.playerId,
+    }).sort({ recordedAt: 1 });
+
+    return res.status(200).json({
+      success: true,
+      data: data,
+    });
+  } catch (error) {
+    console.error("GET WEARABLE DATA ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch wearable data",
+      error: error.message,
+    });
+  }
+});
+
+
 module.exports = router;
