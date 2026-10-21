@@ -18,24 +18,30 @@ class RoleService {
     return role;
   }
 
-  async createRole(roleName) {
-    const existingRole = await Role.findOne({
-      roleName: roleName.toLowerCase(),
-    });
+  async createRole(roleData) {
+    const { roleId: requestedRoleId, roleName, privilegesId = [] } = roleData ?? {};
 
+    if (typeof roleName !== "string" || !roleName.trim()) {
+      throw new Error("roleName is required");
+    }
+    if (!Array.isArray(privilegesId) || privilegesId.some((id) => !Number.isInteger(id))) {
+      throw new Error("privilegesId must be an array of integer privilege IDs");
+    }
+
+    const normalizedRoleName = roleName.trim().toLowerCase();
+    const existingRole = await Role.findOne({ roleName: normalizedRoleName });
     if (existingRole) {
       throw new Error("Role already exists");
     }
 
-    const roleId =
-      `ROLE_${roleName}`
-        .toUpperCase()
-        .replace(/\s+/g, "_");
+    const roleId = typeof requestedRoleId === "string" && requestedRoleId.trim()
+      ? requestedRoleId.trim()
+      : `ROLE_${normalizedRoleName.toUpperCase().replace(/\s+/g, "_")}`;
 
     return await Role.create({
       roleId,
-      roleName: roleName.toLowerCase(),
-      privilegesId: [],
+      roleName: normalizedRoleName,
+      privilegesId,
       isSystemRole: false,
     });
   }

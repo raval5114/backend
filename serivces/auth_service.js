@@ -4,6 +4,7 @@
   const User = require("../models/user.model");
   const Role = require("../models/role.model");
   const Player = require("../models/player.data");
+  const UserLogService = require("./user_log_service");
 
   class AuthService {
     generateAccessToken(user) {
@@ -14,7 +15,7 @@
       },
       process.env.JWT_ACCESS_SECRET,
       {
-        expiresIn: "15m",
+        expiresIn: "60m",
       }
     );
   }
@@ -38,6 +39,8 @@
     mobileNo,
     password,
     roleId,
+    ipAddress,
+    userAgent
   }) {
     const existingUser = await User.findOne({
       $or: [
@@ -63,7 +66,7 @@
       normalizedRoleId === "ROLE_COACH" ? "coach" : "player";
 
     const selectedRole = await Role.findOne({
-      roleName,
+      roleName, 
     });
 
     if (!selectedRole) {
@@ -101,6 +104,15 @@
       });
     }
 
+    await UserLogService.logAction({
+      userId: user.userId,
+      email: user.email,
+      action: "REGISTER",
+      status: "SUCCESS",
+      ipAddress,
+      userAgent,
+    });
+
     return {
       userId: user.userId,
       username: user.username,
@@ -110,38 +122,51 @@
     };
   }
 
-  async login({ identifier, password }) {
+  async login({ identifier, password, ipAddress, userAgent }) {
     const query = identifier.includes("@")
-      ? {
-          email: identifier.toLowerCase(),
-        }
-      : {
-          mobileNo: identifier,
-        };
+      ? { email: identifier.toLowerCase() }
+      : { mobileNo: identifier };
 
-    const user = await User.findOne(query).select(
-      "+password +refreshToken"
-    );
+    const user = await User.findOne(query).select("+password +refreshToken");
 
     if (!user) {
-      throw new Error(
-        "Invalid email/mobile number or password"
-      );
+      await UserLogService.logAction({
+        email: identifier,
+        action: "LOGIN",
+        status: "FAILED",
+        reason: "Invalid email/mobile number or password",
+        ipAddress,
+        userAgent,
+      });
+      throw new Error("Invalid email/mobile number or password");
     }
 
     if (!user.isActive) {
+      await UserLogService.logAction({
+        userId: user.userId,
+        email: user.email,
+        action: "LOGIN",
+        status: "FAILED",
+        reason: "User account is inactive",
+        ipAddress,
+        userAgent,
+      });
       throw new Error("User account is inactive");
     }
 
-    const passwordValid = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const passwordValid = await bcrypt.compare(password, user.password);
 
     if (!passwordValid) {
-      throw new Error(
-        "Invalid email/mobile number or password"
-      );
+      await UserLogService.logAction({
+        userId: user.userId,
+        email: user.email,
+        action: "LOGIN",
+        status: "FAILED",
+        reason: "Invalid email/mobile number or password",
+        ipAddress,
+        userAgent,
+      });
+      throw new Error("Invalid email/mobile number or password");
     }
 
     const accessToken = this.generateAccessToken(user);
@@ -149,6 +174,15 @@
 
     user.refreshToken = refreshToken;
     await user.save();
+
+    await UserLogService.logAction({
+      userId: user.userId,
+      email: user.email,
+      action: "LOGIN",
+      status: "SUCCESS",
+      ipAddress,
+      userAgent,
+    });
 
     return {
       user: {

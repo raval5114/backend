@@ -1790,18 +1790,26 @@ Admin operation           → success if admin has privilege
 Recommended feature workflow:
 
 ``` text
-1. Define specification
-2. Define domain model
-3. Define API contract
-4. Implement model
-5. Implement service
-6. Implement middleware
-7. Implement route
-8. Write tests
-9. Run tests
-10. Review security
-11. Commit
+1. Define specification, API contract, validation, permissions, and errors
+2. Implement the entity model: models/[entity].model.js
+3. Implement business logic: serivces/[feature].service.js
+4. Implement documented HTTP endpoints: routes/[feature].route.js
+5. Register the route in index.js
+6. Add and run the agreed integration tests
+7. Review authorization and data ownership
+8. Commit the feature as a focused change
 ```
+
+The implementation order is mandatory for backend features:
+
+``` text
+model → service → route → index integration
+```
+
+Do not put database business logic in route handlers. Each route must include
+Swagger documentation that matches its actual method, path, request, response,
+and error behavior. Use the existing `serivces/` directory spelling unless the
+backend is deliberately renamed as a separate cleanup.
 
 For major features:
 
