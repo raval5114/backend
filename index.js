@@ -68,7 +68,7 @@ swaggerUi.setup(swaggerSpec)
 // ==========================================
 
 //wearable data
-app.use("/api/wearable", wearableRoutes);
+//app.use("/api/wearable", wearableRoutes);
 // Authentication
 app.use("/api/auth", authRoutes);
 
@@ -79,7 +79,7 @@ app.use("/api/players", playerRoutes);
 app.use("/api/wearable", wearableRoutes);
 app.use("/api/wearable", wearableRoutesget);
 // ==========================================
-// HEALTH CHECK
+// HEALTH CHECK//
 // ==========================================
 
 app.get("/", (req, res) => {

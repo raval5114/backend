@@ -53,16 +53,14 @@
     // Only PLAYER and COACH are allowed during registration
     const normalizedRoleId = roleId?.toUpperCase();
 
-    if (!["PLAYER", "COACH"].includes(normalizedRoleId)) {
+    if (!["ROLE_PLAYER", "ROLE_COACH"].includes(normalizedRoleId)) {
       throw new Error(
         "Invalid role. Registration is allowed only for PLAYER or COACH"
       );
     }
 
     const roleName =
-      normalizedRoleId === "COACH"
-        ? "coach"
-        : "player";
+      normalizedRoleId === "ROLE_COACH" ? "coach" : "player";
 
     const selectedRole = await Role.findOne({
       roleName,
