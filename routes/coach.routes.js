@@ -1,6 +1,7 @@
 const express = require("express");
 
 const CoachService = require("../serivces/coach_service.js");
+const CoachPlayerAssignmentService = require("../serivces/coachPlayerAssignment.service.js");
 
 const authenticationMiddleware = require(
   "../middleware/authentication.middleware.js"
@@ -11,6 +12,48 @@ const authorizationMiddleware = require(
 );
 
 const coachRouter = express.Router();
+
+coachRouter.get(
+  "/players/search",
+  authenticationMiddleware,
+  authorizationMiddleware("COACH_PLAYER_ASSIGN"),
+  async (req, res) => {
+    try {
+      const players = await CoachService.searchAvailablePlayers(req.user.userId, req.query.query);
+      return res.status(200).json({ success: true, data: players });
+    } catch (error) {
+      return res.status(error.statusCode || 500).json({ success: false, error: error.code || "PLAYER_SEARCH_FAILED", message: error.statusCode ? error.message : "Unable to search player accounts" });
+    }
+  }
+);
+
+coachRouter.post(
+  "/players",
+  authenticationMiddleware,
+  authorizationMiddleware("COACH_PLAYER_ASSIGN"),
+  async (req, res) => {
+    try {
+      const assignment = await CoachService.addPlayer(req.user.userId, req.body.userId);
+      return res.status(201).json({ success: true, message: "Player added to your roster", data: assignment });
+    } catch (error) {
+      return res.status(error.statusCode || 500).json({ success: false, error: error.code || "PLAYER_ASSIGNMENT_FAILED", message: error.statusCode ? error.message : "Unable to add player to roster" });
+    }
+  }
+);
+
+coachRouter.delete(
+  "/players/:playerId",
+  authenticationMiddleware,
+  authorizationMiddleware("COACH_PLAYER_ASSIGN"),
+  async (req, res) => {
+    try {
+      await CoachPlayerAssignmentService.remove(req.user.userId, req.params.playerId);
+      return res.status(200).json({ success: true, message: "Player removed from your roster" });
+    } catch (error) {
+      return res.status(error.statusCode || 500).json({ success: false, error: error.code || "PLAYER_REMOVAL_FAILED", message: error.statusCode ? error.message : "Unable to remove player from roster" });
+    }
+  }
+);
 
 /**
  * @swagger
@@ -34,6 +77,24 @@ const coachRouter = express.Router();
  *         description: Authentication required
  *       403:
  *         description: Insufficient privileges
+ * /api/coach/players/search:
+ *   get:
+ *     summary: Search registered players who can be added to this coach roster
+ *     tags: [Coach]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - { in: query, name: query, required: true, schema: { type: string, minLength: 2 } }
+ *     responses:
+ *       200: { description: Matching player accounts and profiles }
+ * /api/coach/players/{playerId}:
+ *   delete:
+ *     summary: Remove a player from the signed-in coach roster
+ *     tags: [Coach]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - { in: path, name: playerId, required: true, schema: { type: string } }
+ *     responses:
+ *       200: { description: Player removed from roster }
  */
 coachRouter.get(
   "/dashboard",
@@ -92,7 +153,7 @@ coachRouter.get(
   async (req, res) => {
     try {
       const result =
-        await CoachService.getPlayerStatistics();
+        await CoachService.getPlayerStatistics(req.user.userId);
 
       return res.status(200).json({
         success: true,
@@ -151,6 +212,21 @@ coachRouter.get(
  *         name: isActive
  *         schema:
  *           type: boolean
+ *   post:
+ *     summary: Add a registered player account to the signed-in coach roster
+ *     tags: [Coach]
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId]
+ *             properties:
+ *               userId: { type: string }
+ *     responses:
+ *       201: { description: Player added to roster }
  */
 coachRouter.get(
   "/players",
@@ -160,6 +236,7 @@ coachRouter.get(
     try {
       const result =
         await CoachService.getPlayers({
+          coachId: req.user.userId,
           page: req.query.page,
           limit: req.query.limit,
           search: req.query.search,
@@ -205,7 +282,7 @@ coachRouter.get(
   async (req, res) => {
     try {
       const result =
-        await CoachService.getSportDistribution();
+        await CoachService.getSportDistribution(req.user.userId);
 
       return res.status(200).json({
         success: true,

@@ -63,7 +63,11 @@ const playerSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    strict: "throw",
   }
 );
+
+// A user can have only one profile; roster links point to this stable ID.
+playerSchema.index({ isActive:  1, sport: 1 });
 
 module.exports = mongoose.model("Player", playerSchema);

@@ -1,5 +1,12 @@
 const User = require("../models/user.model.js");
 const Player = require("../models/player.data.js");
+const CoachPlayerAssignment = require("../models/coachPlayerAssignment.model.js");
+const AssignmentService = require("./coachPlayerAssignment.service.js");
+const PlayerService = require("./player.service.js");
+
+async function assignedPlayerIds(coachId) {
+  return CoachPlayerAssignment.distinct("playerId", { coachId });
+}
 
 /**
  * Coach Service
@@ -23,6 +30,55 @@ const Player = require("../models/player.data.js");
  */
 
 class CoachService {
+  static async searchAvailablePlayers(coachId, query) {
+    const normalized = String(query || "").trim();
+    if (normalized.length < 2) {
+      const error = new Error("Enter at least 2 characters to search players");
+      error.statusCode = 400;
+      error.code = "SEARCH_QUERY_TOO_SHORT";
+      throw error;
+    }
+    const coach = await User.findOne({ userId: coachId, roleId: "ROLE_COACH", isActive: true }).lean();
+    if (!coach) {
+      const error = new Error("Active coach account was not found");
+      error.statusCode = 404;
+      error.code = "COACH_NOT_FOUND";
+      throw error;
+    }
+    const escaped = normalized.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const assignedIds = await assignedPlayerIds(coachId);
+    const assignedProfiles = await Player.find({ playerId: { $in: assignedIds } }).select("userId").lean();
+    const excludedUserIds = assignedProfiles.map((profile) => profile.userId);
+    const users = await User.find({
+      roleId: "ROLE_PLAYER",
+      isActive: true,
+      userId: { $nin: excludedUserIds },
+      username: { $regex: escaped, $options: "i" },
+    }).select("userId username email").limit(20).lean();
+    const profiles = await Player.find({ userId: { $in: users.map((user) => user.userId) } }).lean();
+    const userById = new Map(users.map((user) => [user.userId, user]));
+    const profileByUserId = new Map(profiles.map((profile) => [profile.userId, profile]));
+    return users
+      .filter((user) => !profileByUserId.has(user.userId) || profileByUserId.get(user.userId).isActive)
+      .map((user) => ({ ...(profileByUserId.get(user.userId) || { userId: user.userId, playerId: null, sport: "general" }), user }));
+  }
+
+  static async addPlayer(coachId, userId) {
+    const coach = await User.findOne({ userId: coachId, roleId: "ROLE_COACH", isActive: true }).lean();
+    if (!coach) {
+      const error = new Error("Active coach account was not found");
+      error.statusCode = 404;
+      error.code = "COACH_NOT_FOUND";
+      throw error;
+    }
+    const player = await PlayerService.createForUser(userId);
+    return AssignmentService.create(coachId, player.playerId, coachId);
+  }
+
+  static async removePlayer(coachId, playerId) {
+    return AssignmentService.remove(coachId, playerId);
+  }
+
   /**
    * Get the currently authenticated coach's dashboard.
    *
@@ -57,18 +113,20 @@ class CoachService {
       throw error;
     }
 
+    const playerIds = await assignedPlayerIds(userId);
+    const playerScope = { playerId: { $in: playerIds } };
     const [
       totalPlayers,
       activePlayers,
       inactivePlayers,
     ] = await Promise.all([
-      Player.countDocuments(),
+      Player.countDocuments(playerScope),
 
-      Player.countDocuments({
+      Player.countDocuments({ ...playerScope,
         isActive: true,
       }),
 
-      Player.countDocuments({
+      Player.countDocuments({ ...playerScope,
         isActive: false,
       }),
     ]);
@@ -132,16 +190,11 @@ class CoachService {
   /**
    * Get all players visible to the coach.
    *
-   * IMPORTANT:
-   * There is currently no coach-player assignment model.
-   *
-   * Therefore this method returns players globally rather
-   * than claiming they are assigned to this coach.
-   *
-   * Once CoachAssignment/Team is implemented, this method
-   * should be changed to filter by coach ownership/scope.
+ * Returns only players linked to this coach through the
+ * admin-managed CoachPlayerAssignment roster.
    */
   static async getPlayers({
+    coachId,
     page = 1,
     limit = 20,
     search,
@@ -154,7 +207,8 @@ class CoachService {
       100
     );
 
-    const filter = {};
+    const playerIds = await assignedPlayerIds(coachId);
+    const filter = { playerId: { $in: playerIds } };
 
     if (sport) {
       filter.sport = sport;
@@ -186,7 +240,7 @@ class CoachService {
     const skip = (page - 1) * limit;
 
     const [
-      players,
+      rawPlayers,
       total,
     ] = await Promise.all([
       Player.find(filter)
@@ -199,6 +253,12 @@ class CoachService {
 
       Player.countDocuments(filter),
     ]);
+
+    const playerUsers = await User.find({ userId: { $in: rawPlayers.map((player) => player.userId) } })
+      .select("userId username email")
+      .lean();
+    const usersById = new Map(playerUsers.map((user) => [user.userId, user]));
+    const players = rawPlayers.map((player) => ({ ...player, user: usersById.get(player.userId) || null }));
 
     return {
       success: true,
@@ -221,19 +281,21 @@ class CoachService {
    * Get player statistics visible from
    * the Coach Dashboard.
    */
-  static async getPlayerStatistics() {
+  static async getPlayerStatistics(coachId) {
+    const playerIds = await assignedPlayerIds(coachId);
+    const filter = { playerId: { $in: playerIds } };
     const [
       total,
       active,
       inactive,
     ] = await Promise.all([
-      Player.countDocuments(),
+      Player.countDocuments(filter),
 
-      Player.countDocuments({
+      Player.countDocuments({ ...filter,
         isActive: true,
       }),
 
-      Player.countDocuments({
+      Player.countDocuments({ ...filter,
         isActive: false,
       }),
     ]);
@@ -260,9 +322,11 @@ class CoachService {
   /**
    * Get players grouped by sport.
    */
-  static async getSportDistribution() {
+  static async getSportDistribution(coachId) {
+    const playerIds = await assignedPlayerIds(coachId);
     const distribution =
       await Player.aggregate([
+        { $match: { playerId: { $in: playerIds } } },
         {
           $group: {
             _id: "$sport",

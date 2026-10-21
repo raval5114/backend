@@ -17,6 +17,11 @@ const adminRoutes = require("./routes/admin.routes.js");
 const coachRoutes = require("./routes/coach.routes.js");
 const priviligesRoutes = require("./routes/privilege.routes.js");
 const roleRoutes = require("./routes/role.routes.js");
+const workoutRoutes = require("./routes/workout.route.js");
+const sessionRoutes = require("./routes/session.route.js");
+const executionRoutes = require("./routes/execution.route.js");
+const wearableDataRoutes = require("./routes/wearableData.route.js");
+const coachPlayerAssignmentRoutes = require("./routes/coachPlayerAssignment.route.js");
 // RBAC
 const seedRBAC = require("./rbac.seed.js");
 
@@ -66,6 +71,12 @@ app.use(
 swaggerUi.serve,
 swaggerUi.setup(swaggerSpec)
 );
+// Keep the API-prefixed Swagger URL available as well as the root docs URL.
+app.use(
+"/api/api-docs",
+swaggerUi.serve,
+swaggerUi.setup(swaggerSpec)
+);
 
 // ==========================================
 // ROUTES
@@ -88,6 +99,12 @@ app.use("/api/wearable", wearableRoutes);
 app.use("/api/admin", adminRoutes);
 // Coach APIs
 app.use("/api/coach",coachRoutes)
+// Training plan, workout execution, and wearable ingestion APIs
+app.use("/api", workoutRoutes);
+app.use("/api", sessionRoutes);
+app.use("/api", executionRoutes);
+app.use("/api", wearableDataRoutes);
+app.use("/api/admin", coachPlayerAssignmentRoutes);
 // ==========================================
 // HEALTH CHECK
 // ==========================================
@@ -137,9 +154,9 @@ console.log("Starting Wearable Analytics Service...");
 console.log("Connecting to MongoDB...");
 await connectDb();
 
-// 2. Seed RBAC roles and privileges
-// console.log("Seeding RBAC...");
-// await seedRBAC();
+// 2. Seed the authoritative system roles and privileges (idempotent upserts)
+console.log("Seeding RBAC...");
+await seedRBAC();
 
 // 3. Start Express server
 app.listen(PORT, () => {

@@ -87,7 +87,15 @@ router.get(
 router.get(
   "/:roleId",
   authenticate,
-  authorize("ROLE_READ"),
+  (req, res, next) => {
+    const requestedRoleId = String(req.params.roleId).trim().toLowerCase();
+    const userRoleId = String(req.user.roleId).trim().toLowerCase();
+
+    // Users may resolve their own role after login. Reading other roles
+    // remains restricted to users with ROLE_READ (and admins).
+    if (requestedRoleId === userRoleId) return next();
+    return authorize("ROLE_READ")(req, res, next);
+  },
   async (req, res) => {
     try {
       const role = await roleService.getRoleById(req.params.roleId);

@@ -1,399 +1,98 @@
 const express = require("express");
-const router = express.Router();
 const authenticate = require("../middleware/authentication.middleware");
 const authorize = require("../middleware/authorization.middleware");
+const PlayerService = require("../serivces/player.service");
 
-const player = require("../models/player.data");
-const Player = new player();
+const router = express.Router();
 
-// CREATE PLAYER
-// POST /api/players
-
-
-router.post("/", async (req, res) => {
-  try {
-    const player = await Player.create(req.body);
-
-    res.status(201).json({
-      success: true,
-      message: "Player created successfully",
-      data: player,
-    });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
-
-// ========================================
-// GET ALL PLAYERS
-// GET /api/players
-// ========================================
-router.get("/", async (req, res) => {
-  try {
-    const players = await Player.find();
-
-    return res.status(200).json({
-      success: true,
-      message: "Players fetched successfully",
-      count: players.length,
-      data: players,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      error: "PLAYERS_FETCH_FAILED",
-      message: error.message,
-    });
-  }
-});
-// ============================================================
-// PLAYER MANAGEMENT
-// ============================================================
-
-/**
- * @swagger
+/** @swagger
  * tags:
  *   name: Players
- *   description: Player profile and wearable analytics management
- */
-
-/**
- * @swagger
+ *   description: Player profiles and coach roster access
  * /api/players:
  *   get:
- *     summary: Get all players
- *     description: Returns all player profiles.
- *     tags:
- *       - Players
- *     security:
- *       - bearerAuth: []
+ *     summary: List profiles visible to the authenticated user
+ *     tags: [Players]
+ *     security: [{ bearerAuth: [] }]
  *     responses:
- *       200:
- *         description: Players retrieved successfully
- *       401:
- *         description: Authentication required
- *       403:
- *         description: ROLE_VIOLATION
- */
-router.get(
-  "/",
-  authenticate,
-  authorize("PLAYER_READ"),
-  async (req, res) => {
-    try {
-      const players = await Player.find();
-
-      return res.status(200).json({
-        success: true,
-        data: players,
-      });
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        error: "PLAYER_FETCH_FAILED",
-        message: error.message,
-      });
-    }
-  }
-);
-
-/**
- * @swagger
+ *       200: { description: Player profiles and pagination }
  * /api/players/{playerId}:
  *   get:
- *     summary: Get player by ID
- *     description: Returns a specific player profile.
- *     tags:
- *       - Players
- *     security:
- *       - bearerAuth: []
+ *     summary: Get a visible player profile
+ *     tags: [Players]
+ *     security: [{ bearerAuth: [] }]
  *     parameters:
- *       - in: path
- *         name: playerId
- *         required: true
- *         schema:
- *           type: string
- *         example: PLAYER_001
+ *       - { in: path, name: playerId, required: true, schema: { type: string } }
  *     responses:
- *       200:
- *         description: Player retrieved successfully
- *       401:
- *         description: Authentication required
- *       403:
- *         description: ROLE_VIOLATION
- *       404:
- *         description: Player not found
- */
-router.get(
-  "/:playerId",
-  authenticate,
-  authorize("PLAYER_READ"),
-  async (req, res) => {
-    try {
-      const player = await Player.findOne({
-        playerId: req.params.playerId,
-      });
-
-      if (!player) {
-        return res.status(404).json({
-          success: false,
-          error: "PLAYER_NOT_FOUND",
-          message: "Player not found",
-        });
-      }
-
-      return res.status(200).json({
-        success: true,
-        data: player,
-      });
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        error: "PLAYER_FETCH_FAILED",
-        message: error.message,
-      });
-    }
-  }
-);
-
-/**
- * @swagger
- * /api/players:
- *   post:
- *     summary: Create player
- *     description: Creates a new player profile associated with a user.
- *     tags:
- *       - Players
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - playerId
- *               - userId
- *               - sport
- *             properties:
- *               playerId:
- *                 type: string
- *                 example: PLAYER_001
- *               userId:
- *                 type: string
- *                 example: USER_001
- *               sport:
- *                 type: string
- *                 enum:
- *                   - football
- *                   - cricket
- *                   - basketball
- *                   - tennis
- *                   - general
- *                 example: football
- *               position:
- *                 type: string
- *                 example: midfielder
- *               age:
- *                 type: integer
- *                 example: 22
- *               height:
- *                 type: number
- *                 example: 175
- *               weight:
- *                 type: number
- *                 example: 68
- *               dominantSide:
- *                 type: string
- *                 enum:
- *                   - left
- *                   - right
- *                   - both
- *                 example: right
- *     responses:
- *       201:
- *         description: Player created successfully
- *       400:
- *         description: Invalid player data
- *       401:
- *         description: Authentication required
- *       403:
- *         description: ROLE_VIOLATION
- */
-router.post(
-  "/",
-  authenticate,
-  authorize("PLAYER_CREATE"),
-  async (req, res) => {
-    try {
-      const player = await Player.create(req.body);
-
-      return res.status(201).json({
-        success: true,
-        message: "Player created successfully",
-        data: player,
-      });
-    } catch (error) {
-      return res.status(400).json({
-        success: false,
-        error: "PLAYER_CREATE_FAILED",
-        message: error.message,
-      });
-    }
-  }
-);
-
-/**
- * @swagger
- * /api/players/{playerId}:
+ *       200: { description: Player profile }
+ *       403: { description: Profile is outside the user's roster }
  *   put:
- *     summary: Update player
- *     description: Updates an existing player profile.
- *     tags:
- *       - Players
- *     security:
- *       - bearerAuth: []
+ *     summary: Update an own or administratively managed player profile
+ *     tags: [Players]
+ *     security: [{ bearerAuth: [] }]
  *     parameters:
- *       - in: path
- *         name: playerId
- *         required: true
- *         schema:
- *           type: string
- *         example: PLAYER_001
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               sport:
- *                 type: string
- *               position:
- *                 type: string
- *               age:
- *                 type: integer
- *               height:
- *                 type: number
- *               weight:
- *                 type: number
- *               dominantSide:
- *                 type: string
- *                 enum:
- *                   - left
- *                   - right
- *                   - both
- *               isActive:
- *                 type: boolean
+ *       - { in: path, name: playerId, required: true, schema: { type: string } }
  *     responses:
- *       200:
- *         description: Player updated successfully
- *       401:
- *         description: Authentication required
- *       403:
- *         description: ROLE_VIOLATION
- *       404:
- *         description: Player not found
- */
-router.put(
-  "/:playerId",
-  authenticate,
-  authorize("PLAYER_UPDATE"),
-  async (req, res) => {
-    try {
-      const player = await Player.findOneAndUpdate(
-        { playerId: req.params.playerId },
-        req.body,
-        {
-          new: true,
-          runValidators: true,
-        }
-      );
-
-      if (!player) {
-        return res.status(404).json({
-          success: false,
-          error: "PLAYER_NOT_FOUND",
-          message: "Player not found",
-        });
-      }
-
-      return res.status(200).json({
-        success: true,
-        message: "Player updated successfully",
-        data: player,
-      });
-    } catch (error) {
-      return res.status(400).json({
-        success: false,
-        error: "PLAYER_UPDATE_FAILED",
-        message: error.message,
-      });
-    }
-  }
-);
-
-/**
- * @swagger
- * /api/players/{playerId}:
+ *       200: { description: Player profile updated }
  *   delete:
- *     summary: Delete player
- *     description: Deletes a player profile.
- *     tags:
- *       - Players
- *     security:
- *       - bearerAuth: []
+ *     summary: Deactivate a player profile (administrator)
+ *     tags: [Players]
+ *     security: [{ bearerAuth: [] }]
  *     parameters:
- *       - in: path
- *         name: playerId
- *         required: true
- *         schema:
- *           type: string
- *         example: PLAYER_001
+ *       - { in: path, name: playerId, required: true, schema: { type: string } }
  *     responses:
- *       200:
- *         description: Player deleted successfully
- *       401:
- *         description: Authentication required
- *       403:
- *         description: ROLE_VIOLATION
- *       404:
- *         description: Player not found
+ *       200: { description: Player profile deactivated }
+ * /api/players/users/{userId}/profile:
+ *   post:
+ *     summary: Create the missing profile for a player account (administrator)
+ *     tags: [Players]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - { in: path, name: userId, required: true, schema: { type: string } }
+ *     responses:
+ *       201: { description: Profile ready }
  */
-router.delete(
-  "/:playerId",
-  authenticate,
-  authorize("PLAYER_DELETE"),
-  async (req, res) => {
-    try {
-      const player = await Player.findOneAndDelete({
-        playerId: req.params.playerId,
-      });
 
-      if (!player) {
-        return res.status(404).json({
-          success: false,
-          error: "PLAYER_NOT_FOUND",
-          message: "Player not found",
-        });
-      }
+function sendError(res, error) {
+  const status = error.statusCode || (error.name === "ValidationError" ? 400 : error.code === 11000 ? 409 : 500);
+  return res.status(status).json({
+    success: false,
+    error: error.code || (status === 409 ? "CONFLICT" : status === 400 ? "VALIDATION_ERROR" : "INTERNAL_SERVER_ERROR"),
+    message: status < 500 ? error.message : "Unable to process player profile",
+  });
+}
 
-      return res.status(200).json({
-        success: true,
-        message: "Player deleted successfully",
-      });
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        error: "PLAYER_DELETE_FAILED",
-        message: error.message,
-      });
-    }
-  }
-);
+// Player list access is scoped in the service: players see themselves, coaches
+// see their assigned roster, and administrators can see all profiles.
+router.get("/", authenticate, authorize("PLAYER_READ"), async (req, res) => {
+  try {
+    const result = await PlayerService.listForUser(req.user, req.query);
+    return res.json({ success: true, data: result.items, pagination: result.pagination });
+  } catch (error) { return sendError(res, error); }
+});
 
-module.exports = router;  
+router.get("/:playerId", authenticate, authorize("PLAYER_READ"), async (req, res) => {
+  try { return res.json({ success: true, data: await PlayerService.getForUser(req.user, req.params.playerId) }); }
+  catch (error) { return sendError(res, error); }
+});
+
+// An administrator can create a missing profile for an existing PLAYER user.
+// Normal player registration continues to create its own profile in AuthService.
+router.post("/users/:userId/profile", authenticate, authorize("PLAYER_CREATE"), async (req, res) => {
+  try {
+    const profile = await PlayerService.createForUser(req.params.userId, req.body);
+    return res.status(201).json({ success: true, message: "Player profile is ready", data: profile });
+  } catch (error) { return sendError(res, error); }
+});
+
+router.put("/:playerId", authenticate, authorize("PLAYER_UPDATE"), async (req, res) => {
+  try { return res.json({ success: true, message: "Player profile updated", data: await PlayerService.updateForUser(req.user, req.params.playerId, req.body) }); }
+  catch (error) { return sendError(res, error); }
+});
+
+router.delete("/:playerId", authenticate, authorize("PLAYER_DELETE"), async (req, res) => {
+  try { await PlayerService.deactivate(req.params.playerId); return res.json({ success: true, message: "Player profile deactivated" }); }
+  catch (error) { return sendError(res, error); }
+});
+
+module.exports = router;

@@ -94,6 +94,16 @@ const privileges = [
     description: "Delete player",
     isSystemPrivilege: true,
   },
+  { privilegeId: 23, privilegeName: "WORKOUT_READ", description: "View exercise catalog and workouts", isSystemPrivilege: true },
+  { privilegeId: 24, privilegeName: "WORKOUT_CREATE", description: "Create workout templates", isSystemPrivilege: true },
+  { privilegeId: 25, privilegeName: "WORKOUT_UPDATE", description: "Update owned workout templates", isSystemPrivilege: true },
+  { privilegeId: 26, privilegeName: "SESSION_READ", description: "View authorized sessions", isSystemPrivilege: true },
+  { privilegeId: 27, privilegeName: "SESSION_CREATE", description: "Create and manage training sessions", isSystemPrivilege: true },
+  { privilegeId: 28, privilegeName: "SESSION_JOIN", description: "Join and sync assigned sessions", isSystemPrivilege: true },
+  { privilegeId: 29, privilegeName: "EXECUTION_MANAGE", description: "Manage own workout executions", isSystemPrivilege: true },
+  { privilegeId: 30, privilegeName: "WEARABLE_SYNC", description: "Upload and read own wearable data", isSystemPrivilege: true },
+  { privilegeId: 31, privilegeName: "COACH_PLAYER_ASSIGN", description: "Manage coach player rosters", isSystemPrivilege: true },
+  { privilegeId: 32, privilegeName: "PLAYER_CREATE", description: "Create player profiles for player accounts", isSystemPrivilege: true },
 ];
 
 const roles = [
@@ -115,6 +125,11 @@ const roles = [
     privilegesId: [
       20,
       21,
+      23,
+      26,
+      28,
+      29,
+      30,
     ],
 
     isSystemRole: true,
@@ -127,6 +142,12 @@ const roles = [
     privilegesId: [
       20,
       21,
+      23,
+      24,
+      25,
+      26,
+      27,
+      31,
     ],
 
     isSystemRole: true,
