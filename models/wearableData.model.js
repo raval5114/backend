@@ -20,4 +20,7 @@ const wearableDataSchema = new mongoose.Schema({
 }, { timestamps: true, minimize: true });
 
 wearableDataSchema.index({ executionId: 1, batchId: 1 }, { unique: true });
-module.exports = mongoose.model("WearableData", wearableDataSchema);
+//module.exports = mongoose.model("WearableData", wearableDataSchema);
+module.exports =
+  mongoose.models.WearableData ||
+  mongoose.model("WearableData", wearableDataSchema);
