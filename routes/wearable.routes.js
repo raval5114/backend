@@ -87,7 +87,7 @@
 // module.exports = router;
 
 const express = require("express");
-const WearableDataForCoach = require("../models/wearable_data.js");
+const WearableData = require("../models/wearable_data.js");
 
 const router = express.Router();
 
@@ -128,7 +128,7 @@ router.post("/data", async (req, res) => {
 
     console.log("2. SAVING WEARABLE DATA");
 
-    const wearableData = await WearableDataForCoach.create({
+    const wearableData = await WearableData.create({
       playerId: String(playerId),
       heartRate: Number(heartRate),
       steps: Number(steps),
@@ -163,7 +163,7 @@ router.get("/data/:playerId", async (req, res) => {
 
     console.log(`FETCHING WEARABLE DATA FOR: ${playerId}`);
 
-    const readings = await WearableDataForCoach.find({
+    const readings = await WearableData.find({
       playerId: playerId,
     })
       .sort({ recordedAt: 1 })
@@ -193,7 +193,7 @@ router.get("/data/:playerId/latest", async (req, res) => {
   try {
     const { playerId } = req.params;
 
-    const reading = await WearableDataForCoach.findOne({
+    const reading = await WearableData.findOne({
       playerId: playerId,
     })
       .sort({ recordedAt: -1 })

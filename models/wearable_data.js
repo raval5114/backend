@@ -32,5 +32,6 @@ const wearableDataSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-module.exports = mongoose.model("WearableDataForCoach", wearableDataSchema);
+module.exports =
+  mongoose.models.WearableData ||
+  mongoose.model("WearableData", wearableDataSchema);
