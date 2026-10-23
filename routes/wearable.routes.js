@@ -85,36 +85,66 @@
 // });
 
 // module.exports = router;
+
 const express = require("express");
-const WearableData = require("../models/wearable_data.js");
+const WearableDataForCoach = require("../models/wearable_data.js");
 
 const router = express.Router();
 
+// ============================================================
+// POST - Save wearable data from the watch
+// ============================================================
 router.post("/data", async (req, res) => {
   try {
-    console.log("1. REQUEST RECEIVED");
+    console.log("1. WEARABLE DATA REQUEST RECEIVED");
     console.log(req.body);
 
-    console.log("2. ABOUT TO SAVE TO MONGODB");
+    const { playerId, heartRate, steps, calories } = req.body;
 
-    const wearableData = await WearableData.create({
-      playerId: req.body.playerId,
-      heartRate: req.body.heartRate,
-      steps: req.body.steps,
-      calories: req.body.calories,
+    // Validate required fields
+    if (
+      !playerId ||
+      heartRate === undefined ||
+      steps === undefined ||
+      calories === undefined
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "playerId, heartRate, steps and calories are required",
+      });
+    }
+
+    // Validate numeric fields
+    if (
+      !Number.isFinite(Number(heartRate)) ||
+      !Number.isFinite(Number(steps)) ||
+      !Number.isFinite(Number(calories))
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "heartRate, steps and calories must be numeric",
+      });
+    }
+
+    console.log("2. SAVING WEARABLE DATA");
+
+    const wearableData = await WearableDataForCoach.create({
+      playerId: String(playerId),
+      heartRate: Number(heartRate),
+      steps: Number(steps),
+      calories: Number(calories),
     });
 
-    console.log("3. SAVED TO MONGODB");
+    console.log("3. WEARABLE DATA SAVED");
     console.log(wearableData);
 
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
       message: "Wearable data received and saved successfully",
       data: wearableData,
     });
-
   } catch (error) {
-    console.error("4. ERROR:", error);
+    console.error("SAVE WEARABLE DATA ERROR:", error);
 
     return res.status(500).json({
       success: false,
@@ -124,17 +154,26 @@ router.post("/data", async (req, res) => {
   }
 });
 
-
-// GET - Fetch wearable data for a player
+// ============================================================
+// GET - Fetch wearable data for a specific player
+// ============================================================
 router.get("/data/:playerId", async (req, res) => {
   try {
-    const data = await WearableData.find({
-      playerId: req.params.playerId,
-    }).sort({ recordedAt: 1 });
+    const { playerId } = req.params;
+
+    console.log(`FETCHING WEARABLE DATA FOR: ${playerId}`);
+
+    const readings = await WearableDataForCoach.find({
+      playerId: playerId,
+    })
+      .sort({ recordedAt: 1 })
+      .lean();
 
     return res.status(200).json({
       success: true,
-      data: data,
+      playerId: playerId,
+      count: readings.length,
+      data: readings,
     });
   } catch (error) {
     console.error("GET WEARABLE DATA ERROR:", error);
@@ -147,5 +186,39 @@ router.get("/data/:playerId", async (req, res) => {
   }
 });
 
+// ============================================================
+// GET - Fetch the latest wearable reading for a player
+// ============================================================
+router.get("/data/:playerId/latest", async (req, res) => {
+  try {
+    const { playerId } = req.params;
+
+    const reading = await WearableDataForCoach.findOne({
+      playerId: playerId,
+    })
+      .sort({ recordedAt: -1 })
+      .lean();
+
+    if (!reading) {
+      return res.status(404).json({
+        success: false,
+        message: `No wearable data found for player ${playerId}`,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: reading,
+    });
+  } catch (error) {
+    console.error("GET LATEST WEARABLE DATA ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch latest wearable data",
+      error: error.message,
+    });
+  }
+});
 
 module.exports = router;

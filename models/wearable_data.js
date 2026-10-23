@@ -33,7 +33,4 @@ const wearableDataSchema = new mongoose.Schema(
   }
 );
 
-//module.exports = mongoose.model("WearableData", wearableDataSchema);
-module.exports =
-  mongoose.models.WearableData ||
-  mongoose.model("WearableData", wearableDataSchema);
+module.exports = mongoose.model("WearableDataForCoach", wearableDataSchema);
