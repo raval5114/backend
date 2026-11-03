@@ -94,7 +94,7 @@
     // Player profile should only be created for PLAYER
     let playerId = null;
 
-    if (normalizedRoleId === "PLAYER") {
+    if (normalizedRoleId === "ROLE_PLAYER") {
       playerId = `PLY-${Date.now()}`;
 
       await Player.create({
