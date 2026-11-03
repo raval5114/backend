@@ -1,3 +1,43 @@
+// const mongoose = require("mongoose");
+
+// const wearableDataSchema = new mongoose.Schema(
+//   {
+//     playerId: {
+//       type: String,
+//       required: true,
+//       index: true,
+//     },
+
+//     heartRate: {
+//       type: Number,
+//       required: true,
+//     },
+
+//     steps: {
+//       type: Number,
+//       required: true,
+//     },
+
+//     calories: {
+//       type: Number,
+//       required: true,
+//     },
+
+//     recordedAt: {
+//       type: Date,
+//       default: Date.now,
+//     },
+//   },
+//   {
+//     timestamps: true,
+//   }
+// );
+// // module.exports =
+// //   mongoose.models.WearableData ||
+// //   mongoose.model("WearableData", wearableDataSchema);
+// module.exports =
+//   mongoose.models.WearableDataForCoach ||
+//   mongoose.model("WearableDataForCoach", wearableDataSchema);
 const mongoose = require("mongoose");
 
 const wearableDataSchema = new mongoose.Schema(
@@ -7,22 +47,18 @@ const wearableDataSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-
     heartRate: {
       type: Number,
       required: true,
     },
-
     steps: {
       type: Number,
       required: true,
     },
-
     calories: {
       type: Number,
       required: true,
     },
-
     recordedAt: {
       type: Date,
       default: Date.now,
@@ -33,4 +69,6 @@ const wearableDataSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("WearableDataForCoach", wearableDataSchema);
+module.exports =
+  mongoose.models.WearableDataForCoach ||
+  mongoose.model("WearableDataForCoach", wearableDataSchema);
