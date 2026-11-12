@@ -22,6 +22,7 @@ const sessionRoutes = require("./routes/session.route.js");
 const executionRoutes = require("./routes/execution.route.js");
 const wearableDataRoutes = require("./routes/wearableData.route.js");
 const coachPlayerAssignmentRoutes = require("./routes/coachPlayerAssignment.route.js");
+const analyticsRoutes = require("./routes/analytics.routes.js");
 // RBAC
 const seedRBAC = require("./rbac.seed.js");
 
@@ -107,6 +108,7 @@ app.use("/api", sessionRoutes);
 app.use("/api", executionRoutes);
 app.use("/api", wearableDataRoutes);
 app.use("/api/admin", coachPlayerAssignmentRoutes);
+app.use("/api/analytics", analyticsRoutes);
 // ==========================================
 // HEALTH CHECK//
 // ==========================================
