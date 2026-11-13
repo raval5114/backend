@@ -32,7 +32,7 @@ const coaches = Array.from({ length: 4 }, (_, i) => ({
 }));
 const players = Array.from({ length: 12 }, (_, i) => ({
   userId: `DEMO_PLAYER_${String(i + 1).padStart(2, "0")}`,
-  username: ["Riya Patel", "Dev Malhotra", "Anaya Iyer", "Ishaan Gupta", "Sara Khan", "Reyansh Joshi", "Tara Das", "Vivaan Shah", "Kiara Rao", "Aditya Sen", "Myra Kapoor", "Arnav Bose"][i],
+  username: ["Diya Patel", "Dev Malhotra", "Anaya Iyer", "Ishaan Gupta", "Sara Khan", "Reyansh Joshi", "Tara Das", "Vivaan Shah", "Kiara Rao", "Aditya Sen", "Myra Kapoor", "Arnav Bose"][i],
   email: `player${i + 1}@demo.fitlink.test`,
   roleId: "ROLE_PLAYER",
 }));
