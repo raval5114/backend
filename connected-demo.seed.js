@@ -26,13 +26,13 @@ const UserLog = model("user_log.model.js");
 const stamp = new Date("2026-10-15T08:00:00.000Z");
 const coaches = Array.from({ length: 4 }, (_, i) => ({
   userId: `DEMO_COACH_${String(i + 1).padStart(2, "0")}`,
-  username: ["Asha Mehta", "Kabir Shah", "Mira Nair", "Arjun Rao"][i],
+  username: ["Hari Rawal","Asha Mehta", "Kabir Shah", "Mira Nair", "Arjun Rao"][i],
   email: `coach${i + 1}@demo.fitlink.test`,
   roleId: "ROLE_COACH",
 }));
 const players = Array.from({ length: 12 }, (_, i) => ({
   userId: `DEMO_PLAYER_${String(i + 1).padStart(2, "0")}`,
-  username: ["Diya Patel", "Dev Malhotra", "Anaya Iyer", "Ishaan Gupta", "Sara Khan", "Reyansh Joshi", "Tara Das", "Vivaan Shah", "Kiara Rao", "Aditya Sen", "Myra Kapoor", "Arnav Bose"][i],
+  username: ["Bruce Wayne","Diya Patel", "Dev Malhotra", "Anaya Iyer", "Ishaan Gupta", "Sara Khan", "Reyansh Joshi", "Tara Das", "Vivaan Shah", "Kiara Rao", "Aditya Sen", "Myra Kapoor", "Arnav Bose"][i],
   email: `player${i + 1}@demo.fitlink.test`,
   roleId: "ROLE_PLAYER",
 }));
@@ -150,6 +150,12 @@ async function seed() {
     const total = userDocs.length + playerRows.length + workouts.length + sessions.length + participations.length + workoutSessions.length + executions.length + watches.length + wearableRecords.length + userLogs.length;
     console.log(`Seeded ${total} connected demo records across 10 models.`);
     console.log(`Users: ${allUsers.length} (4 coaches, 12 players); sessions: ${sessions.length}; participations: ${participations.length}; executions: ${executions.length}; wearable batches: ${wearableRecords.length}.`);
+    console.log("Analytics-ready players (each has sessions, executions, wearable batches, and a paired watch):");
+    for (const player of playerRows.slice(0, 4)) {
+      const user = allUsers.find((item) => item.userId === player.userId);
+      console.log(`- ${user.username} | playerId: ${player.playerId} | userId: ${player.userId} | watchId: ${watches.find((watch) => watch.playerId === player.playerId).watchId}`);
+      console.log(`  Analytics: GET /api/analytics/players/${player.playerId}/report?period=custom&startDate=2026-10-16&endDate=2026-10-21`);
+    }
     console.log("Demo account password: DemoFitlink@123");
   } finally {
     await mongoose.disconnect();
