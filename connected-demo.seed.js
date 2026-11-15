@@ -5,11 +5,20 @@
  * Safe to rerun: only records with the DEMO_ prefix are replaced.
  */
 const path = require("path");
-const mongoose = require(path.join(process.env.BACKEND_ROOT || "D:\\project\\backend", "node_modules", "mongoose"));
-const bcrypt = require(path.join(process.env.BACKEND_ROOT || "D:\\project\\backend", "node_modules", "bcryptjs"));
-const dotenv = require(path.join(process.env.BACKEND_ROOT || "D:\\project\\backend", "node_modules", "dotenv"));
-const backendRoot = process.env.BACKEND_ROOT || "D:\\project\\backend";
-dotenv.config({ path: path.join(backendRoot, ".env") });
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const dotenv = require("dotenv");
+
+const backendRoot = process.env.BACKEND_ROOT || __dirname;
+
+dotenv.config({
+  path: path.join(backendRoot, ".env"),
+});
+//const mongoose = require(path.join(process.env.BACKEND_ROOT || "D:\\project\\backend", "node_modules", "mongoose"));
+//const bcrypt = require(path.join(process.env.BACKEND_ROOT || "D:\\project\\backend", "node_modules", "bcryptjs"));
+// const dotenv = require(path.join(process.env.BACKEND_ROOT || "D:\\project\\backend", "node_modules", "dotenv"));
+// const backendRoot = process.env.BACKEND_ROOT || "D:\\project\\backend";
+// dotenv.config({ path: path.join(backendRoot, ".env") });
 
 const model = (file) => require(path.join(backendRoot, "models", file));
 const User = model("user.model.js");
