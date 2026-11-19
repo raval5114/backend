@@ -89,7 +89,7 @@
 //const express = require("express");
 
 const express = require("express");
-const WearableData = require("../models/wearable_data.js");
+const WearableData = require("../models/wearableData.model");
 const crypto = require("crypto");
 const WatchPairing = require("../models/watchPairing.model");
 const Player = require("../models/player.data");
