@@ -1,8 +1,8 @@
   const mongoose = require("mongoose");
 
 const wearableDataSchema = new mongoose.Schema({
-  executionId: { type: String, required: false, index: true },
-  sessionId: { type: String, required: false, index: true },
+  executionId: { type: String, required: false },
+  sessionId: { type: String, required: false,},
   playerId: { type: String, required: true, index: true },
   source: { type: String, enum: ["WEAR_OS"], default: "WEAR_OS" },
   batchId: { type: String, required: false },
@@ -11,6 +11,7 @@ const wearableDataSchema = new mongoose.Schema({
   metrics: {
     durationSeconds: { type: Number, min: 0 },
     steps: { type: Number, min: 0 },
+    heartRate:{type:Number,min:0},
     calories: { type: Number, min: 0 },
     distanceMeters: { type: Number, min: 0 },
     averageHeartRateBpm: { type: Number, min: 0 },
@@ -19,7 +20,7 @@ const wearableDataSchema = new mongoose.Schema({
   receivedAt: { type: Date, default: Date.now },
 }, { timestamps: true, minimize: true });
 
-wearableDataSchema.index({ executionId: 1, batchId: 1 }, { unique: true });
+//wearableDataSchema.index({ executionId: 1, batchId: 1 }, { unique: true });
 //module.exports = mongoose.model("WearableData", wearableDataSchema);
 module.exports =
   mongoose.models.WearableData ||

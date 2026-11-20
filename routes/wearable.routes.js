@@ -156,9 +156,11 @@ router.post("/data", async (req, res) => {
 
     const wearableData = await WearableData.create({
       playerId: String(playerId),
-      heartRate: Number(heartRate),
+      metrics:{ 
+        heartRate: Number(heartRate),
       steps: Number(steps),
       calories: Number(calories),
+    }
     });
 
     console.log("3. WEARABLE DATA SAVED");
