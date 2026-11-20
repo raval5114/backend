@@ -185,6 +185,7 @@ router.post("/data", async (req, res) => {
 // ============================================================
 // GET - Fetch wearable data for a specific player
 // ============================================================
+
 router.get("/data/:playerId", async (req, res) => {
   try {
     const { playerId } = req.params;
@@ -194,15 +195,20 @@ router.get("/data/:playerId", async (req, res) => {
     const readings = await WearableData.find({
       playerId: playerId,
     })
-      .sort({ recordedAt: 1 })
+      .sort({
+        receivedAt: -1,
+        _id: -1
+      })
       .lean();
 
     return res.status(200).json({
       success: true,
-      playerId: playerId,
+      message: "Wearable data fetched successfully",
+      playerId,
       count: readings.length,
       data: readings,
     });
+
   } catch (error) {
     console.error("GET WEARABLE DATA ERROR:", error);
 
@@ -213,6 +219,7 @@ router.get("/data/:playerId", async (req, res) => {
     });
   }
 });
+
 
 // ============================================================
 // GET - Fetch the latest wearable reading for a player

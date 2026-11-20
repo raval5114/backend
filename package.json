@@ -18,7 +18,7 @@
     "mogoose": "^0.0.1-security",
     "mongoose": "^9.10.1",
     "router": "^2.2.0",
-    "sequelize": "^6.37.8",
+      "sequelize": "^6.37.8",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1"
   }
