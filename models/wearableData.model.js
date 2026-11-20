@@ -1,13 +1,13 @@
   const mongoose = require("mongoose");
 
 const wearableDataSchema = new mongoose.Schema({
-  executionId: { type: String, required: true, index: true },
-  sessionId: { type: String, required: true, index: true },
+  executionId: { type: String, required: false, index: true },
+  sessionId: { type: String, required: false, index: true },
   playerId: { type: String, required: true, index: true },
   source: { type: String, enum: ["WEAR_OS"], default: "WEAR_OS" },
-  batchId: { type: String, required: true },
-  startedAt: { type: Date, required: true },
-  endedAt: { type: Date, required: true },
+  batchId: { type: String, required: false },
+  startedAt: { type: Date, required: false },
+  endedAt: { type: Date, required: false },
   metrics: {
     durationSeconds: { type: Number, min: 0 },
     steps: { type: Number, min: 0 },
